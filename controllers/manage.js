@@ -2,7 +2,7 @@
 
 var passport = require('passport');
 var _ = require('underscore');
-var User = require('../models/user');
+var User = require('../models/User');
 // var Project = require('../models/project');
 
 exports.getIndex = function(req, res) {
