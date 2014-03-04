@@ -50,7 +50,43 @@ exports.createKeypair = function(cb) {
 	return keygenParams;
 }
 
-exports.signAppPackage = function(inputFile, outputFile, keygenParams) {
+// TODO: need something better than passing around keygenPArams -- replace with config
+
+exports.signAppStream = function(unsignedPackageStream, signedPackageStream, keygenParams) {
+	// TODO: create temp file in os.tmpdir()
+	// TODO: write input stream to a file
+
+	var filestem = 'Package-' + Date.now();
+	var unsignedFilename = 'tmp-' + filestem + '.zip';
+	var signedFilename = 'signed-' + filestem + '.zip';
+
+	var unsignedFileStream = fs.createWriteStream(unsignedFilename);
+
+	unsignedPackageStream.pipe(unsignedFileStream);
+
+	//TODO: wait until the above is done
+
+	unsignedPackageStream.on('end', function() {
+		// TODO: invoke signAppPackage
+		exports.signAppPackage(unsignedFilename, signedFilename, keygenParams, function(exitCode) {
+			// done signing, OK to delete unsigned package
+			fs.unlinkSync(unsignedFilename);
+
+			// TODO: write output file to output stream
+			var signedFileStream = fs.createReadStream(signedFilename);
+
+			signedFileStream.pipe(signedPackageStream);
+
+			signedFileStream.on('end', function() {
+				// TODO: delete tmp file
+				fs.unlinkSync(signedFilename);
+				console.log("done");
+			});
+		});
+	});
+}
+
+exports.signAppPackage = function(inputFile, outputFile, keygenParams, cb) {
 	var spawn = require('child_process').spawn;
 	function puts(error, stdout, stderr) { sys.puts(stdout); sys.puts(stderr); }
 
@@ -96,6 +132,8 @@ exports.signAppPackage = function(inputFile, outputFile, keygenParams) {
 
 	child.on('close', function(exitCode) {
 		console.log("exit code " + exitCode);
+		// NOTE: see UNIX exit codes
+		cb(exitCode);
 	});
 
 	child.stdin.write(keygenParams.alias_password + '\n');
@@ -104,6 +142,13 @@ exports.signAppPackage = function(inputFile, outputFile, keygenParams) {
 // hardwired test of creating keypair and signing zipfile.
 // assumes existence of sometext.zip in current working directory
 
+// exports.createKeypair(function (params) {
+// 	exports.signAppPackage("sometext.zip", "sometext-signed.zip", params);
+// });
+
 exports.createKeypair(function (params) {
-	exports.signAppPackage("sometext.zip", "sometext-signed.zip", params);
+	var readUnsigned = fs.createReadStream("sometext.zip");
+	var writeSigned = fs.createWriteStream("sometext-signed.zip");
+	exports.signAppStream(readUnsigned, writeSigned, params);
 });
+
