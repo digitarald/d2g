@@ -2,7 +2,7 @@
 
 var passport = require('passport');
 var _ = require('underscore');
-var User = require('../models/user');
+var User = require('../models/User');
 
 /**
  * GET /login
