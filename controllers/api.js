@@ -1,5 +1,5 @@
 var secrets = require('../config/secrets');
-var User = require('../models/User');
+var User = require('../models/user');
 var querystring = require('querystring');
 var validator = require('validator');
 var async = require('async');

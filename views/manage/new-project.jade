@@ -1,0 +1,35 @@
+extends ../layout
+
+block content
+	.page-header
+		h2
+			i.fa.fa-rocket
+			|  Add a new Project
+
+	.row
+		.col-md-6
+			h3
+				i.fa.fa-upload
+				| Upload a Package
+			p.lead Quick-start a new project with an app package. You need to have a zip file containing your app.
+			.row
+				.col-md-6.text-center
+					h4 Upload File
+					input(type='file', name='new-package')
+				.col-md-6.text-center
+					script(src='https://www.dropbox.com/static/api/2/dropins.js' id='dropboxjs', data-app-key='y33ly9lynuwc4v5')
+					h4 Get from Dropbox
+						button.btn.btn-default Pick from Dropbox
+
+		.col-md-6
+			h3
+				i.fa.fa-dropbox
+				| Link Github Repo
+			p.lead Automate build updates with commit hooks.
+
+			if secrets.githubAuth
+				if user.github
+					p: a.btn.btn-default Select Repository
+				else
+					p You need to link your Github account before continuing.
+					a.btn.btn-default(href='/auth/github') Link your GitHub account
