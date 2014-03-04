@@ -1,6 +1,5 @@
 /** @jsx React.DOM */
 
-
 var React = window.React = require('react');
 var Router = require('director/build/director').Router;
 
@@ -61,13 +60,37 @@ var Main = React.createClass({
 });
 
 document.addEventListener('DOMContentLoaded', function(){
-	React.renderComponent(
-		Main({
-			router: router,
-			routes: routes
-		}),
-		document.querySelector('#wrap')
-	);
-
+	var btn = document.getElementById('browserid');
+	if (btn) {
+		btn.onclick = function() {
+			navigator.id.get(function(assertion) {
+	      if (assertion) {
+	        document.querySelector('input[name="assertion"]').value = assertion;
+	        document.querySelector('form').submit();
+	      } else {
+	        location.reload();
+	      }
+	    });
+		}
+	} else {
+		React.renderComponent(
+			Main({
+				router: router,
+				routes: routes
+			}),
+			document.querySelector('#wrap')
+		);
+	}
 });
+
+// document.addEventListener('DOMContentLoaded', function(){
+// 	React.renderComponent(
+// 		Main({
+// 			router: router,
+// 			routes: routes
+// 		}),
+// 		document.querySelector('#wrap')
+// 	);
+
+// });
 
