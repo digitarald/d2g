@@ -12,18 +12,25 @@ var projectSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	},
+	_version: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Version'
+	},
 	created: {
 		type: Date,
 		default: Date.now
 	}
 });
 
-projectSchema.methods.getVersions = function(done) {
+projectSchema.methods.getLatestVersion = function(done) {
 	Version
-		.find({
+		.findOne({
 			_project: this._id
 		})
-		.exec(done);
+		.exec(function(err, version) {
+			this._version = version._id;
+			this.save(done);
+		}.bind(this));
 };
 
 module.exports = mongoose.model('Project', projectSchema);

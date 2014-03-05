@@ -4,6 +4,7 @@
  */
 
 var config = require("../config/config");
+var Project = require('../models/project');
 
 exports.getIndex = function(req, res) {
 	if (req.user) {
@@ -12,6 +13,25 @@ exports.getIndex = function(req, res) {
   res.render('home', {
     title: 'Welcome'
   });
+};
+
+exports.getManifest = function(req, res) {
+
+};
+
+exports.getInstall = function(req, res) {
+	var project_id = req.params.project_id;
+	Project
+		.findById(project_id)
+		.populate('_version')
+		.exec(function(err, project) {
+			if (err) {
+				return res.send(404);
+			}
+			res.render('install', {
+		    title: project.name
+		  });
+		});
 };
 
 exports.getPhoneCertInstructions = function (req, res) {

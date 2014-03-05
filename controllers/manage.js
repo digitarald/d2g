@@ -20,8 +20,13 @@ exports.getProjects = function(req, res) {
 		.find({
 			_user: req.user.id
 		})
+		.populate('_version')
 		.exec(function(err, projects) {
 			res.send(projects.map(function(project) {
+				// TODO: Remove this dirty migration hack
+				if (!project._version) {
+					project.getLatestVersion();
+				}
 				return project.toObject();
 			}));
 		});
