@@ -11,7 +11,7 @@ var Component = React.createClass({
     }
   },
 
-  handleUpload: function() {
+  handleUpload: function(event) {
     var file = (event.target.files || event.dataTransfer.files)[0];
 
     var data = new FormData();
