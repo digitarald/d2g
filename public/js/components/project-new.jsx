@@ -6,23 +6,25 @@ var Component = React.createClass({
 
   getInitialState: function() {
     return {
-      uploading: false,
+      uploading: 0,
+      project: null,
       progress: 0
     }
   },
 
   handleUpload: function(event) {
-    var file = (event.target.files || event.dataTransfer.files)[0];
+    console.log(event);
+    var file = (event.dataTransfer ? event.dataTransfer : event.target.files)[0];
 
     var data = new FormData();
     data.append('zip', file);
-    var xhr = new XMLHttpRequest();
+    var xhr = this.xhr = new XMLHttpRequest();
     xhr.open('POST', '/manage/project', true);
-    xhr.addEventListener('progress', this.handleProgress.bind(this));
-    xhr.addEventListener('load', this.handleComplete.bind(this));
+    xhr.upload.addEventListener('progress', this.handleProgress);
+    xhr.addEventListener('load', this.handleComplete);
     xhr.send(data);
 
-    this.setState({uploading: true, progress: 0});
+    this.setState({uploading: 1, progress: 0});
   },
 
   handleProgress: function(event) {
@@ -30,14 +32,27 @@ var Component = React.createClass({
       return;
     }
     var progress = event.loaded / event.total;
-    console.log('%d%% complete', progress * 100);
-    this.setState({progress: progress});
+    this.setState({progress: 0});
   },
 
   handleComplete: function(event) {
+    this.setState({uploading: 2, project: this.xhr.responseText});
+    this.xhr = null;
   },
 
 	render: function() {
+    switch (this.state.uploading) {
+      case 0:
+        var upload = <input type='file' ref='package' onChange={this.handleUpload} />;
+        break;
+      case 1:
+        var upload = <span>Uploading {this.state.progress}%</span>;
+        break;
+      case 2:
+        var upload = <span>Uploaded <em>{this.state.project}</em></span>;
+        break;
+    }
+
 		return (
       <div onDrop={this.handleUpload}>
   			<div className='page-header'>
@@ -48,9 +63,7 @@ var Component = React.createClass({
             <h3><i className='fa fa-upload'></i> Upload Package</h3>
             <p className='lead'>Quick-start a new project with an app package. You need to have a zip file containing your app.</p>
             <h4>Upload File</h4>
-            <p className='text-center'>
-              <input type='file' ref='package' onChange={this.handleUpload} />
-            </p>
+            <p className='text-center'>{upload}</p>
           </div>
           <div className='col-md-6'>
             <h3><i className='fa fa-dropbox'></i> Link Github Repo</h3>
