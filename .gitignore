@@ -2,3 +2,4 @@ node_modules
 config/*.js
 config/*.der
 config/*.ks
+.tern-port
