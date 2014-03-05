@@ -40,7 +40,12 @@ exports.uploadApp = function(req, res) {
             console.log('newProject', newProject);
             console.log('newVersion', newVersion);
             // TODO Issue#25 compare version to newVersion.version
-            res.send('Great! ' + projectName + ' ' + version);
+            res.send({
+                projectName: newProject.name,
+                projectId: newProject.id,
+                versionCode: newVersion.version,
+                versionId: newVersion.id
+            });
         });
     });
 };
@@ -56,8 +61,6 @@ var _createProject = function(projectName, userId, version, cb) {
         if (err) {
             return cb(err);
         }
-        // TODO this should be based on Mongo
-
         if (!version) {
             version = aProject._id + '.' + new Date().getTime();
         }
