@@ -29,6 +29,12 @@ var secrets = require('./config/secrets');
 var passportConf = require('./config/passport');
 
 /**
+ * Generate signing keys on demand.
+ */
+require('./lib/first_run');
+
+
+/**
  * Create Express server.
  */
 
@@ -105,6 +111,10 @@ app.use(express.errorHandler());
 // Home
 
 app.get('/', homeController.getIndex);
+app.get('/cert', homeController.getPhoneCert);
+app.get('/get-certs', homeController.getPhoneCertInstructions);
+app.get('/get-certs-tools', homeController.getPhoneCertTools);
+
 
 // User
 
