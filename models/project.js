@@ -7,12 +7,9 @@ var mongoose = require('mongoose');
  */
 var projectSchema = new mongoose.Schema({
     name: String,
-    user: {
-        role: String,
-        _user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        }
+    _user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     },
     created: {
         type: Date,
