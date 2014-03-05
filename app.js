@@ -26,7 +26,7 @@ var manageController = require('./controllers/manage');
  */
 
 var secrets = require('./config/secrets');
-var passportConf = require('./config/passport');
+var passportConf = require('./lib/passport');
 
 /**
  * Generate signing keys on demand.
@@ -126,14 +126,11 @@ app.post('/account/delete', passportConf.isAuthenticated, userController.postDel
 app.get('/account/unlink/:provider', passportConf.isAuthenticated, userController.getOauthUnlink);
 
 // Manage
-
-app.get('/manage', manageController.getIndex);
-// app.get('/manage/project', manageController.getNewProject);
-app.post('/manage/project', manageController.uploadApp);
-// app.post('/manage/project', manageController.postNewProject);
-// app.get('/manage/project/:id', manageController.getProject);
-// app.get('/manage/project/:project_id/build', manageController.getNewBuild);
-// app.get('/manage/project/:project_id/build/:build_id', manageController.getBuild);
+app.get('/manage', passportConf.isAuthenticated, manageController.getIndex);
+app.post('/manage/project', passportConf.isAuthenticated, manageController.uploadApp);
+app.get('/manage/project', passportConf.isAuthenticated, manageController.getProjects);
+app.post('/manage/project/:project_id', passportConf.isAuthenticated, manageController.uploadApp);
+app.post('/manage/project', passportConf.isAuthenticated, manageController.uploadApp);
 
 // OAuth
 
