@@ -5,7 +5,7 @@ var passport = require('passport');
 var PersonaStrategy = require('passport-persona').Strategy;
 var GitHubStrategy = require('passport-github').Strategy;
 var TwitterStrategy = require('passport-twitter').Strategy;
-var User = require('../models/User');
+var User = require('../models/user');
 var secrets = require('./secrets');
 
 passport.serializeUser(function(user, done) {
@@ -152,7 +152,7 @@ passport.use(new TwitterStrategy(secrets.twitter, function(req, accessToken, tok
 }));
 
 passport.use(new PersonaStrategy({
-		audience: 'http://localhost:3000'
+		audience: 'http://badger:3000'
 	},
 	function(email, done) {
 		console.log('Strategy found', email);
