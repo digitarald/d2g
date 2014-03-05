@@ -64,6 +64,7 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(expressValidator());
 app.use(express.methodOverride());
+app.use(express.bodyParser());
 app.use(express.session({
   secret: secrets.sessionSecret,
   store: new MongoStore({
@@ -71,12 +72,12 @@ app.use(express.session({
     auto_reconnect: true
   })
 }));
-app.use(express.csrf());
+//app.use(express.csrf());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(function(req, res, next) {
   res.locals.user = req.user;
-  res.locals.token = req.csrfToken();
+  //res.locals.token = req.csrfToken();
   res.locals.secrets = secrets;
   next();
 });
@@ -118,6 +119,7 @@ app.get('/account/unlink/:provider', passportConf.isAuthenticated, userControlle
 
 app.get('/manage', manageController.getIndex);
 app.get('/manage/project', manageController.getNewProject);
+app.post('/manage/upload_app', manageController.uploadApp);
 // app.post('/manage/project', manageController.postNewProject);
 // app.get('/manage/project/:id', manageController.getProject);
 // app.get('/manage/project/:project_id/build', manageController.getNewBuild);
