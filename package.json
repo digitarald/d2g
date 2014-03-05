@@ -37,5 +37,8 @@
     "less-loader": "0.7.x",
     "file-loader": "^0.5.1",
     "node-libs-browser": "^0.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "~1.0.15"
   }
 }
