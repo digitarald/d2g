@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var Version = require('./version');
 
 /**
  * App: Name
@@ -14,7 +15,15 @@ var projectSchema = new mongoose.Schema({
 	created: {
 		type: Date,
 		default: Date.now
-	},
+	}
 });
+
+projectSchema.methods.getVersions = function(done) {
+	Version
+		.find({
+			_project: this._id
+		})
+		.exec(done);
+};
 
 module.exports = mongoose.model('Project', projectSchema);
