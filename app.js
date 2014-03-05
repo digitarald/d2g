@@ -29,6 +29,11 @@ var secrets = require('./config/secrets');
 var passportConf = require('./config/passport');
 
 /**
+ * Generate signing keys on demand.
+ */
+require('./lib/first_run');
+
+/**
  * Create Express server.
  */
 
