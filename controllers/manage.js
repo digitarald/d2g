@@ -44,7 +44,8 @@ exports.uploadApp = function(req, res) {
                 projectName: newProject.name,
                 projectId: newProject.id,
                 versionCode: newVersion.version,
-                versionId: newVersion.id
+                versionId: newVersion.id,
+                userId: newProject._user
             });
         });
     });
