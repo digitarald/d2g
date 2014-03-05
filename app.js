@@ -26,7 +26,7 @@ var manageController = require('./controllers/manage');
  */
 
 var secrets = require('./config/secrets');
-var passportConf = require('./config/passport');
+var passportConf = require('./lib/passport');
 
 /**
  * Generate signing keys on demand.
