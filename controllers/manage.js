@@ -13,6 +13,7 @@ exports.getIndex = function(req, res) {
 		title: 'Dashboard',
 		standalone: true
 	});
+};
 
 exports.uploadApp = function(req, res) {
 	if (!req.files || !req.files.zip || !req.files.zip.path) {

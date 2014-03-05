@@ -118,8 +118,8 @@ app.get('/account/unlink/:provider', passportConf.isAuthenticated, userControlle
 // Manage
 
 app.get('/manage', manageController.getIndex);
-app.get('/manage/project', manageController.getNewProject);
-app.post('/manage/upload_app', manageController.uploadApp);
+// app.get('/manage/project', manageController.getNewProject);
+app.post('/manage/project', manageController.uploadApp);
 // app.post('/manage/project', manageController.postNewProject);
 // app.get('/manage/project/:id', manageController.getProject);
 // app.get('/manage/project/:project_id/build', manageController.getNewBuild);

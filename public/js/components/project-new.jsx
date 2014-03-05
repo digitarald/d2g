@@ -14,15 +14,21 @@ var Component = React.createClass({
   handleUpload: function() {
     var file = (event.target.files || event.dataTransfer.files)[0];
 
+    var data = new FormData();
+    data.append('zip', file);
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/project', true);
-    xhr.addEventListener('progress', this.handleProgress);
-    xhr.onload = this.handleComplete;
-    xhr.send(file);
+    xhr.open('POST', '/manage/project', true);
+    xhr.addEventListener('progress', this.handleProgress.bind(this));
+    xhr.addEventListener('load', this.handleComplete.bind(this));
+    xhr.send(data);
+
     this.setState({uploading: true, progress: 0});
   },
 
   handleProgress: function(event) {
+    if (!event.lengthComputable) {
+      return;
+    }
     var progress = event.loaded / event.total;
     console.log('%d%% complete', progress * 100);
     this.setState({progress: progress});
