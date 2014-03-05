@@ -6,11 +6,12 @@ module.exports = {
 	devtool: 'sourcemap',
 	debug: true,
 	context: path.join(__dirname, 'public'),
-	entry: './js/main.jsx',
+	entry: './js/main.js',
 	output: {
 		path: path.join(__dirname, 'client', 'bundle'),
 		publicPath: 'bundle/',
-		filename: 'all.js'
+		filename: 'all.js',
+		chunkFilename: '[chunkhash].js'
 	},
 	resolve: {
 		modulesDirectories: ['node_modules']

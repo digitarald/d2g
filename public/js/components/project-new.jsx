@@ -3,29 +3,51 @@
 var React = require('react');
 
 var Component = React.createClass({
+
+  getInitialState: function() {
+    return {
+      uploading: false,
+      progress: 0
+    }
+  },
+
+  handleUpload: function() {
+    var file = (event.target.files || event.dataTransfer.files)[0];
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/project', true);
+    xhr.addEventListener('progress', this.handleProgress);
+    xhr.onload = this.handleComplete;
+    xhr.send(file);
+    this.setState({uploading: true, progress: 0});
+  },
+
+  handleProgress: function(event) {
+    var progress = event.loaded / event.total;
+    console.log('%d%% complete', progress * 100);
+    this.setState({progress: progress});
+  },
+
+  handleComplete: function(event) {
+  },
+
 	render: function() {
 		return (
-      <div>
+      <div onDrop={this.handleUpload}>
   			<div className='page-header'>
           <h2><i className='fa fa-rocket'></i> Add a new Project</h2>
         </div>
         <div className='row'>
           <div className='col-md-6'>
+            <h3><i className='fa fa-upload'></i> Upload Package</h3>
             <p className='lead'>Quick-start a new project with an app package. You need to have a zip file containing your app.</p>
-            <div className='row'>
-              <div className='col-md-6 text-center'>
-                <h4>Upload File</h4>
-                <input type='file' name='new-package' />
-              </div>
-              <div className='col-md-6 text-center'>
-                <h4>Get from Dropbox
-                  <button className='btn btn-default'>Pick from Dropbox</button>
-                </h4>
-              </div>
-            </div>
+            <h4>Upload File</h4>
+            <p className='text-center'>
+              <input type='file' ref='package' onChange={this.handleUpload} />
+            </p>
           </div>
           <div className='col-md-6'>
-            <h3><i className='fa fa-dropbox'></i>Link Github Repo</h3>
+            <h3><i className='fa fa-dropbox'></i> Link Github Repo</h3>
             <p className='lead'>Automate build updates with commit hooks.</p>
             <p>You need to link your Github account before continuing.</p><a href='/auth/github' className='btn btn-default'>Link your GitHub account</a>
           </div>
@@ -33,6 +55,7 @@ var Component = React.createClass({
       </div>
 		);
 	}
+
 });
 
 module.exports = Component;
