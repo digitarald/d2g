@@ -4,14 +4,14 @@ var crypto = require('crypto');
 var sys = require('sys');
 var _ = require('lodash');
 var os = require('os');
-var path = require('path'),
-	fs = require('fs');
+var path = require('path');
+var fs = require('fs');
+var exec = require('child_process').exec;
 
 // see http://stackoverflow.com/questions/8520973/how-to-create-a-pair-private-public-keys-using-node-js-crypto
 // see https://github.com/digitarald/d2g/issues/2
 
 exports.createKeypair = function(cb) {
-	var exec = require('child_process').exec;
 
 	// parameters to keytool
 	// assumes a bogus corporation called Acme
@@ -48,6 +48,24 @@ exports.createKeypair = function(cb) {
 	});
 
 	return keygenParams;
+}
+
+exports.createDER = function(keygenParams, derFilename) {
+	// TODO: given a keystore, use keytool to generate a DER
+	// sample: keytool -exportcert -alias herong_key -keypass keypass -keystore herong.jks -storepass jkspass -file keytool_crt.der
+
+	var derExportTemplate = 'keytool -exportcert -alias <%- alias %> -keypass <%- store_password %> -keystore <%- keystore %> -storepass <%- store_password %> -file <%- derFilename %>';
+
+	keygenParams.derFilename = derFilename;
+
+	var derExportCommand = _.template(derExportTemplate, keygenParams);
+
+	exec(derExportCommand, function (error, stdout, stderr) {
+		console.log(stdout);
+		if (typeof cb === 'function') {
+			cb(keygenParams);
+		}
+	});
 }
 
 // TODO: need something better than passing around keygenPArams -- replace with config
@@ -147,6 +165,7 @@ exports.signAppPackage = function(inputFile, outputFile, keygenParams, cb) {
 // });
 
 exports.createKeypair(function (params) {
+	exports.createDER(params, 'filename.der');
 	var readUnsigned = fs.createReadStream("sometext.zip");
 	var writeSigned = fs.createWriteStream("sometext-signed.zip");
 	exports.signAppStream(readUnsigned, writeSigned, params);
