@@ -1,4 +1,7 @@
 extends layout
 
 block content
-  h1 Install #{title}
+  h1 #{title} #{version}
+
+
+  button(data-package-manifest-url=manifestUrl). Install

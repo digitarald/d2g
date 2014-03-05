@@ -5,6 +5,7 @@
 
 var config = require("../config/config");
 var Project = require('../models/project');
+var Version = require('../models/version');
 
 exports.getIndex = function(req, res) {
 	if (req.user) {
@@ -28,9 +29,21 @@ exports.getInstall = function(req, res) {
 			if (err) {
 				return res.send(404);
 			}
-			res.render('install', {
-				title: project.name
+
+			Version.findOne({
+				_project: project_id
+			})
+			.sort('created')
+			.exec(function (err, version) {
+				res.render('install', {
+					title: project.name,
+					// TODO make this the real minifest url.
+					manifestUrl: "/manifest/" + project_id,
+					version: version.version
+				});
 			});
+
+
 		});
 };
 
