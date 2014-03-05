@@ -6,18 +6,15 @@ var mongoose = require('mongoose');
  * Tester: Version installed
  */
 var projectSchema = new mongoose.Schema({
-    name: String,
-    user: {
-        role: String,
-        _user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        }
-    },
-    created: {
-        type: Date,
-    default: Date.now
-    },
+	name: String,
+	_user: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User'
+	},
+	created: {
+		type: Date,
+		default: Date.now
+	},
 });
 
 module.exports = mongoose.model('Project', projectSchema);
