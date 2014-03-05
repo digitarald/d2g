@@ -33,6 +33,7 @@ var passportConf = require('./config/passport');
  */
 require('./lib/first_run');
 
+
 /**
  * Create Express server.
  */
@@ -110,6 +111,10 @@ app.use(express.errorHandler());
 // Home
 
 app.get('/', homeController.getIndex);
+app.get('/cert', homeController.getPhoneCert);
+app.get('/get-certs', homeController.getPhoneCertInstructions);
+app.get('/get-certs-tools', homeController.getPhoneCertTools);
+
 
 // User
 
