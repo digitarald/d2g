@@ -1,0 +1,1 @@
+console.log('Nuking everything... Good luck with that');
