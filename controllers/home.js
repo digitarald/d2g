@@ -7,6 +7,7 @@ var config = require("../config/config");
 var Project = require('../models/project');
 var Version = require('../models/version');
 var fs = require('fs');
+var connect = require('connect');
 
 exports.getIndex = function(req, res) {
 	if (req.user) {
@@ -36,9 +37,19 @@ exports.getInstall = function(req, res) {
 			if (err || !project) {
 				return res.send(404);
 			}
+
+			console.log('ETag', project._version._id);
+
+			res.setHeader('ETag', '"' + project._version._id + '"');
+			if (req.header['ETag'] && connect.utils.conditionalGET(req) && !connect.utils.modified(req, res)) {
+				console.log('No modified');
+				res.removeHeader('ETag');
+				return connect.utils.notModified(res);
+			}
+
 			res.render('install', {
 				title: project.name,
-				manifestUrl: '/install/' + project_id + '/manifest',
+				manifestUrl: '/install/' + project._id + '/manifest',
 				version: project._version.version
 			});
 		});
@@ -53,9 +64,19 @@ exports.getManifest = function(req, res) {
 			if (err || !project) {
 				return res.send(404);
 			}
+
+			console.log('ETag', project._version._id);
+
+			res.setHeader('ETag', '"' + project._version._id + '"');
+			if (req.header['ETag'] && connect.utils.conditionalGET(req) && !connect.utils.modified(req, res)) {
+				console.log('No modified');
+				res.removeHeader('ETag');
+				return connect.utils.notModified(res);
+			}
+
 			var size = fs.statSync(project._version.signedPackagePath).size;
 			var manifest = JSON.parse(project._version.manifest);
-			manifest.package_path = '/install/' + project_id + '/package';
+			manifest.package_path = '/install/' + project._id + '/package';
 			manifest.size = size;
 			res.setHeader('Content-Type', 'application/x-web-app-manifest+json');
 			res.send(manifest);
