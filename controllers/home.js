@@ -1,3 +1,4 @@
+'use strict';
 /**
  * GET /
  * Home page.
@@ -8,6 +9,8 @@ var Project = require('../models/project');
 var Version = require('../models/version');
 var fs = require('fs');
 var connect = require('connect');
+var fresh = require('fresh');
+var mongoose = require('mongoose');
 
 exports.getIndex = function(req, res) {
 	if (req.user) {
@@ -38,13 +41,8 @@ exports.getInstall = function(req, res) {
 				return res.send(404);
 			}
 
-			console.log('ETag', project._version._id);
-
-			res.setHeader('ETag', '"' + project._version._id + '"');
-			if (req.header['ETag'] && connect.utils.conditionalGET(req) && !connect.utils.modified(req, res)) {
-				console.log('No modified');
-				res.removeHeader('ETag');
-				return connect.utils.notModified(res);
+			if (setCacheFromIdAndVerifyFreshness(project._version.id, req, res)) {
+				return;
 			}
 
 			res.render('install', {
@@ -65,13 +63,8 @@ exports.getManifest = function(req, res) {
 				return res.send(404);
 			}
 
-			console.log('ETag', project._version._id);
-
-			res.setHeader('ETag', '"' + project._version._id + '"');
-			if (req.header['ETag'] && connect.utils.conditionalGET(req) && !connect.utils.modified(req, res)) {
-				console.log('No modified');
-				res.removeHeader('ETag');
-				return connect.utils.notModified(res);
+			if (setCacheFromIdAndVerifyFreshness(project._version.id, req, res)) {
+				return;
 			}
 
 			var size = fs.statSync(project._version.signedPackagePath).size;
@@ -101,6 +94,11 @@ exports.getPackage = function(req, res) {
 			if (err || !project) {
 				return res.send(404);
 			}
+
+			if (setCacheFromIdAndVerifyFreshness(project._version.id, req, res)) {
+				return;
+			}
+
 			res.sendfile(project._version.signedPackagePath);
 		});
 };
@@ -169,3 +167,30 @@ exports.getPhoneCert = function(req, res) {
 exports.getPhoneCertTools = function(req, res) {
 	// TODO provide tools to install the cert.
 };
+
+
+/**
+ * Set etag and last-modified from mongo id
+ *
+ * @param {Number} id
+ * @param {Object} req
+ * @param {Object} res
+ * @return {Boolean}
+ */
+function setCacheFromIdAndVerifyFreshness(id, req, res) {
+	var id = mongoose.Types.ObjectId(id);
+	var headers = {
+		'etag': id.toString(),
+		'last-modified': id.getTimestamp().toUTCString()
+	}
+	for (var key in headers) {
+		res.setHeader(key, headers[key]);
+	}
+	// Cache is stale
+	if (!fresh(req.headers, headers)) {
+		return false;
+	}
+	// Freshness!
+	connect.utils.notModified(res);
+	return true;
+}
