@@ -114,7 +114,10 @@ app.get('/', homeController.getIndex);
 app.get('/cert', homeController.getPhoneCert);
 app.get('/get-certs', homeController.getPhoneCertInstructions);
 app.get('/get-certs-tools', homeController.getPhoneCertTools);
+app.get('/install', homeController.getInstall);
 app.get('/install/:project_id', homeController.getInstall);
+app.get('/install/:project_id/manifest', homeController.getManifest);
+app.get('/install/:project_id/package', homeController.getPackage);
 
 
 // User

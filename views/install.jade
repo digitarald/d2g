@@ -1,7 +1,9 @@
 extends layout
 
 block content
-  h1 #{title} #{version}
+	.row
+		.col-md-8.col-md-offset-2
+			.page-header
+				h2 #{title} #{version}
 
-
-  button(data-package-manifest-url=manifestUrl). Install
+			button.btn.btn-lg.col-md-12.btn-primary(data-package-manifest-url=manifestUrl) Install
