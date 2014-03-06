@@ -16,26 +16,22 @@ srcdir=$PWD
 tmpdir=$TMP/test_signed_apps
 passwordfile=$tmpdir/passwordfile
 
-# # add and overwrite the contents of the archive at $1 with anything found in directory $2
-# replace_zip()
-# {
-#   zip=$1 # must be an absolute path
-#   new_contents_dir=$2
-
-#   oldpwd=$PWD
-#   cd $new_contents_dir && zip -9 -o -r $zip *
-#   cd $oldpwd
-# }
-
 # create a new certificate for the given label using NSS's certutil
 # expected values for the label are 'trusted' and 'untrusted'
 create_cert_for_label()
 {
   label=$1
 
+  # initialize temp directory
+  rm -Rf $tmpdir
+  mkdir $tmpdir
+
   # initialize noise file
   noisefile=$tmpdir/noise
   head -c 32 /dev/urandom > $noisefile
+
+  # create password file
+  echo password1 > $passwordfile
 
   # XXX: certutil cannot generate basic constraints without interactive prompts,
   #      so we need to build response files to answer its questions
@@ -72,6 +68,9 @@ create_cert_for_label()
   # In case we want to inspect the generated certs
   certutil -d $db -L -n ca1 -r -o $db/ca1.der
   certutil -d $db -L -n ee1 -r -o $db/ee1.der
+
+  # dump the trusted cert into a DER file
+  certutil -d $tmpdir/trusted -f $passwordfile -L -n ca1 -r -o $srcdir/trusted_ca1.der  
 }
 
 # sign an app for the given label, input file, and output file.
@@ -86,21 +85,10 @@ sign_app_with_cert_for_label()
   python sign_b2g_app.py -d $db -f $passwordfile -k ee1 -i $unsigned_zip -o $out_signed_zip -S test_app_identifier -V 1
 }
 
-# initialize temp directory
-rm -Rf $tmpdir
-mkdir $tmpdir
-
-# create password file
-echo password1 > $passwordfile
-
-# replace_zip $srcdir/unsigned.zip $srcdir/simple
-
 # create a trusted cert
 create_cert_for_label trusted
 
 # sign unsigned.zip from source dir using the trusted cert. Put the result in valid.zip
 # NOTA BENE: unsigned.zip must exist already
-sign_app_with_cert_for_label trusted   $srcdir/unsigned.zip $srcdir/valid.zip
+sign_app_with_cert_for_label trusted $srcdir/unsigned.zip $srcdir/valid.zip
 
-# dump the trusted cert into a DER file
-certutil -d $tmpdir/trusted -f $passwordfile -L -n ca1 -r -o $srcdir/trusted_ca1.der
