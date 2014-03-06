@@ -9,71 +9,71 @@
 
 set -x
 
-# create a new certificate using NSS's certutil
-create_cert()
-{
-  # initalize config/certs dir
-  configCertsDir=$1
+# ################ create a new certificate using NSS's certutil
 
-  # initialize temp directory
-  tmpdir=/tmp/test_signed_apps
-  rm -Rf $tmpdir
-  mkdir $tmpdir
+# initalize config/certs dir from first argument
+configCertsDir=$1
+echo "configCertsDir is $configCertsDir"
 
-  # password file persists in the configCerts dir
-  passwordfile=$configCertsDir/passwordfile
+# second argument the location of the DER file
+publicKeyDER=$2
 
-  # initialize noise file
-  noisefile=$tmpdir/noise
-  head -c 32 /dev/urandom > $noisefile
+# initialize temp directory
+tmpdir=/tmp/test_signed_apps
+rm -Rf $tmpdir
+mkdir $tmpdir
 
-  # create password file
-  echo password1 > $passwordfile
+# password file persists in the configCerts dir
+passwordfile=$configCertsDir/password.txt
 
-  # XXX: certutil cannot generate basic constraints without interactive prompts,
-  #      so we need to build response files to answer its questions
-  # XXX: certutil cannot generate AKI/SKI without interactive prompts so we just
-  #      skip them.
-  ca_responses=$tmpdir/ca_responses
-  ee_responses=$tmpdir/ee_responses  
-  echo y >  $ca_responses # Is this a CA?
-  echo >>   $ca_responses # Accept default path length constraint (no constraint)
-  echo y >> $ca_responses # Is this a critical constraint?
-  echo n >  $ee_responses # Is this a CA?
-  echo >>   $ee_responses # Accept default path length constraint (no constraint)
-  echo y >> $ee_responses # Is this a critical constraint?
+# initialize noise file
+noisefile=$tmpdir/noise
+head -c 32 /dev/urandom > $noisefile
 
-  # XXX: We cannot give the trusted and untrusted versions of the certs the same
-  # subject names because otherwise we'll run into
-  # SEC_ERROR_REUSED_ISSUER_AND_SERIAL.
-  org="O=Examplla Corporation,L=Mountain View,ST=CA,C=US"
-  ca_subj="CN=Examplla Root CA,OU=Examplla CA,$org"
-  ee_subj="CN=Examplla Marketplace App Signing,OU=Examplla Marketplace App Signing,$org"
+# create password file
+echo password1 > $passwordfile
 
-  # create a database using the password file
-  db=$configCertsDir/trusted
-  mkdir -p $db
-  certutil -d $db -N -f $passwordfile
+# XXX: certutil cannot generate basic constraints without interactive prompts,
+#      so we need to build response files to answer its questions
+# XXX: certutil cannot generate AKI/SKI without interactive prompts so we just
+#      skip them.
+ca_responses=$tmpdir/ca_responses
+ee_responses=$tmpdir/ee_responses  
+echo y >  $ca_responses # Is this a CA?
+echo >>   $ca_responses # Accept default path length constraint (no constraint)
+echo y >> $ca_responses # Is this a critical constraint?
+echo n >  $ee_responses # Is this a CA?
+echo >>   $ee_responses # Accept default path length constraint (no constraint)
+echo y >> $ee_responses # Is this a critical constraint?
 
-  make_cert="certutil -d $db -f $passwordfile -S -v 480 -g 2048 -Z SHA256 \
-                      -z $noisefile -y 3 -2 --extKeyUsage critical,codeSigning"
-  $make_cert -n ca1        -m 1 -s "$ca_subj" \
-             --keyUsage critical,certSigning      -t ",,CTu" -x < $ca_responses
-  $make_cert -n ee1 -c ca1 -m 2 -s "$ee_subj" \
-             --keyUsage critical,digitalSignature -t ",,,"      < $ee_responses
+# XXX: We cannot give the trusted and untrusted versions of the certs the same
+# subject names because otherwise we'll run into
+# SEC_ERROR_REUSED_ISSUER_AND_SERIAL.
+org="O=Examplla Corporation,L=Mountain View,ST=CA,C=US"
+ca_subj="CN=Examplla Root CA,OU=Examplla CA,$org"
+ee_subj="CN=Examplla Marketplace App Signing,OU=Examplla Marketplace App Signing,$org"
 
-  # In case we want to inspect the generated certs
-  certutil -d $db -L -n ca1 -r -o $db/ca1.der
-  certutil -d $db -L -n ee1 -r -o $db/ee1.der
+# create a database using the password file
+db=$configCertsDir/trusted
+rm -Rf $db
+mkdir $db
+certutil -d $db -N -f $passwordfile
 
-  # dump the trusted cert into a DER file
-  certutil -d $db -f $passwordfile -L -n ca1 -r -o $configCertsDir/trusted_ca1.der  
 
-  # now that we're done with it, remove tmpdir
-  rm -Rf $tmpdir
-}
+make_cert="certutil -d $db -f $passwordfile -S -v 480 -g 2048 -Z SHA256 \
+                    -z $noisefile -y 3 -2 --extKeyUsage critical,codeSigning"
+$make_cert -n ca1        -m 1 -s "$ca_subj" \
+           --keyUsage critical,certSigning      -t ",,CTu" -x < $ca_responses
+$make_cert -n ee1 -c ca1 -m 2 -s "$ee_subj" \
+           --keyUsage critical,digitalSignature -t ",,,"      < $ee_responses
 
-theConfigCertsDir=/Users/walker/mozilla/d2g/bin
+# In case we want to inspect the generated certs
+certutil -d $db -L -n ca1 -r -o $db/ca1.der
+certutil -d $db -L -n ee1 -r -o $db/ee1.der
 
-# create a trusted cert
-create_cert $theConfigCertsDir
+# dump the trusted cert into a DER file
+certutil -d $db -f $passwordfile -L -n ca1 -r -o $publicKeyDER  
+
+# now that we're done with it, remove tmpdir
+rm -Rf $tmpdir
+

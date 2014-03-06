@@ -20,7 +20,7 @@ sign_app_with_cert()
   configCertsDir=$1
 
   # password file persists in the configCerts dir
-  passwordfile=$configCertsDir/passwordfile
+  passwordfile=$configCertsDir/password.txt
 
   unsigned_zip=$2
   out_signed_zip=$3
