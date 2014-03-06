@@ -22,59 +22,28 @@ document.addEventListener('DOMContentLoaded', function(){
 		}
 	}
 
-	// TODO check if navigator.mozApps exists.
-
-
-	// app.js
-
-	function showLogMessage(inMessage) {
-		console.log(inMessage);
-	}
-
-	function installSuccess(e) {
-		showLogMessage("app install succeeded " + this.result);
-	}
-
-	function installFail(e) {
-		showLogMessage("app install failed " + this.error.name);
-	}
-
-	var buttons = document.getElementsByTagName("button");
-
-	for (var index = 0; index < buttons.length; index++) {
-		var button = buttons[index];
-
-		button.addEventListener('click', function f(e) {
-			showLogMessage("clicked " + e.target.innerHTML.trim());
-			//document.getElementById('installSpinner').style.display = 'block';
-
-			if (e.target.getAttribute("data-manifest-url")) {
-				// This is issue #17.
-				showLogMessage("install hosted " + e.target.innerHTML.trim());
-
-				var url = e.target.getAttribute("data-manifest-url");
-				showLogMessage("hosted manifest url " + url);
-
-				var request = navigator.mozApps.install(url);
-				request.onsuccess = installSuccess;
-				request.onerror = installFail;
-
-			} else if (e.target.getAttribute("data-package-manifest-url")) {
-				showLogMessage("install packaged " + e.target.innerHTML.trim());
-
-				var url = e.target.getAttribute("data-package-manifest-url");
-				showLogMessage("packaged manifest url " + url);
-
-				var request = navigator.mozApps.installPackage(url);
-				request.onsuccess = installSuccess;
-				request.onerror = installFail;
-
-			} else {
-				showLogMessage("ERROR: found neither data-packaged-manifest-url nor data-manifest-url");
+	var install = document.querySelector('button[data-package-manifest-url]');
+	if (install) {
+		if (!navigator.mozApps) {
+			return alert('navigator.mozApps is required');
+		}
+		if (!navigator.mozApps.installPackage) {
+			return alert('mozApps.installPackage is required');
+		}
+		install.addEventListener('click', function f(e) {
+			var url = install.getAttribute('data-package-manifest-url');
+			url = location.origin + url;
+			var request = navigator.mozApps.installPackage(url);
+			request.onsuccess = function() {
+				if (!this.result) {
+					return alert('Install failed without error');
+				}
+				alert(this.result.manifest.name + ' installed');
+			};
+			request.onerror = function() {
+				alert(this.error.name);
 			}
 		});
 	}
-
-
 
 });

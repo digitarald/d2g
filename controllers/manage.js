@@ -105,9 +105,10 @@ var _createProject = function(manifest, userId, cb) {
 		}
 		var aVersion = new Version({
 			version: version,
-			manifest: manifest,
+			manifest: JSON.stringify(manifest),
 			_project: aProject._id
 		});
+		console.log(manifest);
 		aVersion.save(function(err, newVersion) {
 			if (err) {
 				return cb(err);
