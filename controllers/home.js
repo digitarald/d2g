@@ -57,6 +57,15 @@ exports.getManifest = function(req, res) {
 			var manifest = JSON.parse(project._version.manifest);
 			manifest.package_path = '/install/' + project_id + '/package';
 			manifest.size = size;
+			var icons = manifest.icons || { 256: "" };
+
+			for (size in icons) {
+				if (icons.hasOwnProperty(size)) {
+					icons[size] = '/install/' + project_id + '/icon/' + size;
+				}
+			}
+			manifest.icons = icons;
+
 			res.setHeader('Content-Type', 'application/x-web-app-manifest+json');
 			res.send(manifest);
 		});
@@ -77,6 +86,7 @@ exports.getPackage = function(req, res) {
 
 exports.getIcon = function (req, res) {
 	var project_id = req.params.project_id;
+	var icon_size = req.params.icon_size;
 	Project
 		.findById(project_id)
 		.populate('_version')
@@ -88,26 +98,40 @@ exports.getIcon = function (req, res) {
 			var manifest = JSON.parse(project._version.manifest);
 
 			var icons = manifest.icons;
-			var biggestSize = "0",
+			var biggestSize = 0,
 					biggestPath = "";
-			icons.forEach(function (i, size) {
-				if (biggestSize < size) {
-					biggestPath = icons[size];
+			if (!icon_size) {
+				for (var size in icons) {
+					if (icons.hasOwnProperty(size)) {
+						if (biggestSize < +size) {
+							biggestSize = +size;
+							biggestPath = icons[size];
+						}
+					}
 				}
-			});
+			} else {
+				biggestSize = +icon_size;
+				biggestPath = icons[icon_size];
+			}
+
 			if (!biggestPath) {
 				res.sendfile(__dirname + "/../public/images/favicon.png");
 				return;
 			}
 
-
+			biggestPath = biggestPath.replace(/^\//, "");
 
 			var exec = require("child_process").exec,
-					zipCommand = "unzip -j " + project._version.signedPackagePath + " " + biggestPath + " -d " + process.cwd();
+					zipCommand = "unzip -j -p " + project._version.signedPackagePath + " " + biggestPath;
 
-			console.log("ZIP: " + zipCommand);
-			exec(zipCommand, function (err) {
-
+			exec(zipCommand, {encoding: 'binary', maxBuffer: 5000*1024}, function (err, stdout, stderr) {
+				if (!err) {
+					res.setHeader('ContentType', 'image/png');
+					res.send(new Buffer(stdout, 'binary'));
+				} else {
+					res.sendfile(__dirname + "/../public/images/favicon.png");
+					return;
+				}
 			});
 
 		});
