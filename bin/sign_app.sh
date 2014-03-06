@@ -9,30 +9,20 @@
 
 set -x
 
-# let the source directory be the current working directory
-srcdir=$PWD
-
 # sign an app for the input file and output file.
 # assumes the global password file and cert database still exist
-sign_app_with_cert()
-{
-  # initalize config/certs dir
-  configCertsDir=$1
 
-  # password file persists in the configCerts dir
-  passwordfile=$configCertsDir/password.txt
+# initalize config/certs dir
+configCertsDir=$1
 
-  unsigned_zip=$2
-  out_signed_zip=$3
+# password file persists in the configCerts dir (must match with generate_cert.sh)
+passwordfile=$configCertsDir/password.txt
 
-  db=$configCertsDir/trusted
+# input file is second argument, output file is third argument
+unsigned_zip=$2
+out_signed_zip=$3
 
-  python sign_b2g_app.py -d $db -f $passwordfile -k ee1 -i $unsigned_zip -o $out_signed_zip -S test_app_identifier -V 1
-}
+# database location must match with generate_cert.sh
+db=$configCertsDir/trusted
 
-theConfigCertsDir=/Users/walker/mozilla/d2g/bin
-
-# sign unsigned.zip from source dir using the trusted cert. Put the result in valid.zip
-# NOTA BENE: unsigned.zip must exist already
-sign_app_with_cert $theConfigCertsDir $srcdir/unsigned.zip $srcdir/valid.zip
-
+python sign_b2g_app.py -d $db -f $passwordfile -k ee1 -i $unsigned_zip -o $out_signed_zip -S test_app_identifier -V 1

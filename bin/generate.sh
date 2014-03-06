@@ -11,4 +11,4 @@ set -x
 
 ./generate_cert.sh $PWD $PWD/phone-cert.der
 
-./sign_app.sh
+./sign_app.sh $PWD $PWD/unsigned.zip $PWD/valid.zip
