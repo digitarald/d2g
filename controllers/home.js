@@ -4,13 +4,14 @@
  * Home page.
  */
 
-var config = require("../config/config");
+var config = require('../config/config');
 var Project = require('../models/project');
 var Version = require('../models/version');
 var fs = require('fs');
 var connect = require('connect');
 var fresh = require('fresh');
 var mongoose = require('mongoose');
+var spawn = require('child_process').spawn;
 
 exports.getIndex = function(req, res) {
 	if (req.user) {
@@ -71,7 +72,9 @@ exports.getManifest = function(req, res) {
 			var manifest = JSON.parse(project._version.manifest);
 			manifest.package_path = '/install/' + project._id + '/package';
 			manifest.size = size;
-			var icons = manifest.icons || { 256: "" };
+			var icons = manifest.icons || {
+				256: ''
+			};
 
 			for (size in icons) {
 				if (icons.hasOwnProperty(size)) {
@@ -103,7 +106,7 @@ exports.getPackage = function(req, res) {
 		});
 };
 
-exports.getIcon = function (req, res) {
+exports.getIcon = function(req, res) {
 	var project_id = req.params.project_id;
 	var icon_size = req.params.icon_size;
 	Project
@@ -114,11 +117,15 @@ exports.getIcon = function (req, res) {
 				return res.send(404);
 			}
 
+			if (setCacheFromIdAndVerifyFreshness(project._version.id, req, res)) {
+				return;
+			}
+
 			var manifest = JSON.parse(project._version.manifest);
 
 			var icons = manifest.icons;
 			var biggestSize = 0,
-					biggestPath = "";
+				biggestPath = '';
 			if (!icon_size) {
 				for (var size in icons) {
 					if (icons.hasOwnProperty(size)) {
@@ -134,24 +141,17 @@ exports.getIcon = function (req, res) {
 			}
 
 			if (!biggestPath) {
-				res.sendfile(__dirname + "/../public/images/favicon.png");
+				res.sendfile(__dirname + '/../public/images/favicon.png');
 				return;
 			}
 
-			biggestPath = biggestPath.replace(/^\//, "");
+			biggestPath = biggestPath.replace(/^\//, '');
 
-			var exec = require("child_process").exec,
-					zipCommand = "unzip -j -p " + project._version.signedPackagePath + " " + biggestPath;
-
-			exec(zipCommand, {encoding: 'binary', maxBuffer: 5000*1024}, function (err, stdout, stderr) {
-				if (!err) {
-					res.setHeader('ContentType', 'image/png');
-					res.send(new Buffer(stdout, 'binary'));
-				} else {
-					res.sendfile(__dirname + "/../public/images/favicon.png");
-					return;
-				}
+			res.setHeader('Content-Type', 'image/png');
+			var child = spawn('unzip', ['-j', '-p', project._version.signedPackagePath, biggestPath], {
+				encoding: 'binary'
 			});
+			child.stdout.pipe(res);
 
 		});
 };
@@ -161,7 +161,7 @@ exports.getPhoneCertInstructions = function(req, res) {
 };
 
 exports.getPhoneCert = function(req, res) {
-	res.download(config.derFilePath, 'phone-cert.der');
+	res.download(config.derFilePath, 'phone - cert.der ');
 };
 
 exports.getPhoneCertTools = function(req, res) {
