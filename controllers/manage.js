@@ -1,18 +1,12 @@
 'use strict';
 
-var fs = require('fs');
-var os = require('os');
-var path = require('path');
-
 var passport = require('passport');
 var _ = require('underscore');
 
-var keygen = require('../lib/keygen');
-var owaReader = require('../lib/owa_reader');
+var processor = require('../lib/app_processor');
 var Project = require('../models/project');
 var SignedPackage = require('../models/signed_package');
 var User = require('../models/user');
-var Version = require('../models/version');
 
 exports.getIndex = function(req, res) {
 	res.render('manage/index', {
@@ -46,76 +40,14 @@ exports.uploadApp = function(req, res) {
 	}
 	var userId = req.user;
 	var unsignedPackagePath = req.files.zip.path;
-	owaReader(unsignedPackagePath, function(err, manifest) {
+
+	processor(userId, unsignedPackagePath, function(err, project) {
 		if (err) {
 			console.log(err);
+			console.log(err.stack);
 			console.error(err);
 			return res.send(404, 'Unable to read app zip');
 		}
-		_createProject(manifest, userId, function(err, newProject, newVersion) {
-			if (err) {
-				console.log(err);
-				console.error(err);
-				return res.send(500, 'Unable to save to Mongo');
-			}
-			// TODO Issue#25 compare version to newVersion.version
-			fs.mkdir(path.join(os.tmpdir(), 'd2g-signed-packages'), function(err) {
-				// Error is fine, dir exists
-
-				var signedPackagePath = path.join(os.tmpdir(), 'd2g-signed-packages', newProject.id + '.zip');
-
-				keygen.signAppPackage(unsignedPackagePath, signedPackagePath, function(exitCode) {
-					if (0 !== exitCode) {
-						return res.send(500, 'Unable to sign app');
-					}
-
-					// https://github.com/digitarald/d2g/issues/34
-					//var signedPackage = new SignedPackage();
-					//signedPackage.signedPackage = fs.readFileSync(signedPackage);
-					//signedPackage.save(function(err, newSignedPackage) {
-					//newVersion._signedPackage = newSignedPackage.id;
-					newVersion.signedPackagePath = signedPackagePath;
-					newVersion.save(function(err, updatedVersion) {
-						console.log('saved after package err=', err, 'updatedVersion=', updatedVersion);
-						var project = newProject.toObject();
-						project.version = newVersion.toObject();
-						res.send(project);
-
-					});
-				});
-			});
-		});
-	});
-}
-
-var _createProject = function(manifest, userId, cb) {
-	console.log(typeof userId, userId);
-	var aProject = new Project({
-		name: manifest.name,
-		_user: userId
-	});
-	var version = manifest.version;
-
-	aProject.save(function(err, newProject) {
-		if (err) {
-			return cb(err);
-		}
-		if (!version) {
-			version = aProject._id + '.' + Date.now();
-		}
-		var aVersion = new Version({
-			version: version,
-			manifest: manifest,
-			_project: aProject._id
-		});
-		aVersion.save(function(err, newVersion) {
-			if (err) {
-				return cb(err);
-			}
-			aProject._version = aVersion._id;
-			aProject.save(function() {
-				cb(null, newProject, newVersion);
-			});
-		});
+		res.send(project);
 	});
 }
