@@ -12,9 +12,19 @@ exports.getIndex = function(req, res) {
 	if (req.user) {
 		return res.redirect('/manage');
 	}
-	res.render('home', {
-		title: 'Welcome'
-	});
+	Project
+		.find()
+		.populate('_version')
+		.exec(function(err, projects) {
+			projects = projects.map(function(project) {
+				return project.toObject();
+			});
+			res.render('home', {
+				title: 'Projects',
+				projects: projects
+			});
+		});
+
 };
 
 exports.getInstall = function(req, res) {
