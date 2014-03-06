@@ -1,6 +1,11 @@
 extends layout
 
 block content
-  h1 Distribute 2 Gecko
-  p.lead
-    | Easily share web apps for testing and preview.
+	h1 Distribute 2 Gecko
+	p.lead
+		| Easily share web apps for testing and preview.
+	ul
+		each project in projects
+			li
+				a(href='/install/#{project._id}') #{project.name}
+
