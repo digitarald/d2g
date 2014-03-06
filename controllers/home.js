@@ -23,7 +23,7 @@ exports.getInstall = function(req, res) {
 		.findById(project_id)
 		.populate('_version')
 		.exec(function(err, project) {
-			if (err) {
+			if (err || !project) {
 				return res.send(404);
 			}
 			res.render('install', {
@@ -40,7 +40,7 @@ exports.getManifest = function(req, res) {
 		.findById(project_id)
 		.populate('_version')
 		.exec(function(err, project) {
-			if (err) {
+			if (err || !project) {
 				return res.send(404);
 			}
 			var size = fs.statSync(project._version.signedPackagePath).size;
@@ -58,7 +58,7 @@ exports.getPackage = function(req, res) {
 		.findById(project_id)
 		.populate('_version')
 		.exec(function(err, project) {
-			if (err || !project._version.signedPackagePath) {
+			if (err || !project) {
 				return res.send(404);
 			}
 			res.sendfile(project._version.signedPackagePath);
