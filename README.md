@@ -8,7 +8,12 @@ to install certified apps.
 
 * NodeJS 0.10+
 * MongoDB 2.4.9
-* unzip (UnZip, by Info-ZIP will work)
+* zip, unzip (UnZip, by Info-ZIP will work)
+
+## Installing on Ubuntu
+
+    # install nodejs and mongodb manually for latest
+    sudo apt-get install mongodb unzip zip
 
 
 ## Running Service
