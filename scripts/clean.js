@@ -19,5 +19,7 @@ var Version = require('../models/version');
 console.log('Nuking everything... Good luck with that');
 
 mongoose.connection.db.dropDatabase();
+mongoose.disconnect();
+
 rm(config.keystorePath);
 rm(config.derFilePath);
