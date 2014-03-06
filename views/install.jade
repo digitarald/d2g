@@ -1,9 +1,18 @@
 extends layout
 
 block content
-	.row
-		.col-md-8.col-md-offset-2
-			.page-header
-				h2 #{title} #{version}
+	.row.project
+		.col-md-6.col-md-offset-3
+			.row
+				.col-xs-12.page-header
+					img(src=iconUrl)
+					div
+						h1 #{title}
+							small
+								|  #{version}
+			.row.text-center
+				.col-xs-12.col-md-6.col-md-offset-3
+					button.col-xs-12.btn.btn-lg.btn-primary(data-package-manifest-url=manifestUrl) Install
+					div.small.text-muted Updated #{createdAgo} - #{size}
 
-			button.btn.btn-lg.col-md-12.btn-primary(data-package-manifest-url=manifestUrl) Install
+

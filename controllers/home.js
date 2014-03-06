@@ -11,6 +11,8 @@ var fs = require('fs');
 var connect = require('connect');
 var fresh = require('fresh');
 var mongoose = require('mongoose');
+var moment = require('moment');
+var prettyBytes = require('pretty-bytes');
 var spawn = require('child_process').spawn;
 
 exports.getIndex = function(req, res) {
@@ -42,13 +44,15 @@ exports.getInstall = function(req, res) {
 				return res.send(404);
 			}
 
-			if (setCacheFromIdAndVerifyFreshness(project._version.id, req, res)) {
-				return;
-			}
+			var size = fs.statSync(project._version.signedPackagePath).size;
 
 			res.render('install', {
 				title: project.name,
+				created: project._version.created.toUTCString(),
+				createdAgo: moment(project._version.created).fromNow(),
+				size: prettyBytes(size),
 				manifestUrl: '/install/' + project._id + '/manifest',
+				iconUrl: '/install/' + project._id + '/icon',
 				version: project._version.version
 			});
 		});

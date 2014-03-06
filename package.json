@@ -38,7 +38,9 @@
     "less-loader": "0.7.x",
     "file-loader": "0.5.x",
     "connect": "2.14.x",
-    "fresh": "^0.2.2"
+    "fresh": "^0.2.2",
+    "moment": "^2.5.1",
+    "pretty-bytes": "^0.1.0"
   },
   "devDependencies": {
     "nodemon": "1.0.x"
