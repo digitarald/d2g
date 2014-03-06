@@ -9,3 +9,12 @@ to install certified apps.
 * NodeJS 0.10+
 * MongoDB 2.4.9
 * unzip (UnZip, by Info-ZIP will work)
+
+
+## Running Service
+
+    npm start
+
+## Resetting everything
+
+    npm run-script clean
