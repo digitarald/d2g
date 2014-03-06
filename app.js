@@ -118,6 +118,7 @@ app.get('/install', homeController.getInstall);
 app.get('/install/:project_id', homeController.getInstall);
 app.get('/install/:project_id/manifest', homeController.getManifest);
 app.get('/install/:project_id/package', homeController.getPackage);
+app.get('/install/:project_id/icon', homeController.getIcon);
 
 
 // User
