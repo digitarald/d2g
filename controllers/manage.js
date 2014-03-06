@@ -46,13 +46,13 @@ exports.uploadApp = function(req, res) {
 	}
 	var userId = req.user;
 	var unsignedPackagePath = req.files.zip.path;
-	owaReader(unsignedPackagePath, function(err, projectName, version) {
+	owaReader(unsignedPackagePath, function(err, manifest) {
 		if (err) {
 			console.log(err);
 			console.error(err);
 			return res.send(404, 'Unable to read app zip');
 		}
-		_createProject(projectName, userId, version, function(err, newProject, newVersion) {
+		_createProject(manifest, userId, function(err, newProject, newVersion) {
 			if (err) {
 				console.log(err);
 				console.error(err);
@@ -68,12 +68,12 @@ exports.uploadApp = function(req, res) {
 					if (0 !== exitCode) {
 						return res.send(500, 'Unable to sign app');
 					}
-				    
-				    // https://github.com/digitarald/d2g/issues/34
-				    //var signedPackage = new SignedPackage();
-				    //signedPackage.signedPackage = fs.readFileSync(signedPackage);
-				    //signedPackage.save(function(err, newSignedPackage) {
-				    //newVersion._signedPackage = newSignedPackage.id;
+
+					// https://github.com/digitarald/d2g/issues/34
+					//var signedPackage = new SignedPackage();
+					//signedPackage.signedPackage = fs.readFileSync(signedPackage);
+					//signedPackage.save(function(err, newSignedPackage) {
+					//newVersion._signedPackage = newSignedPackage.id;
 					newVersion.signedPackagePath = signedPackagePath;
 					newVersion.save(function(err, updatedVersion) {
 						console.log('saved after package err=', err, 'updatedVersion=', updatedVersion);
@@ -88,29 +88,34 @@ exports.uploadApp = function(req, res) {
 	});
 }
 
-var _createProject = function(projectName, userId, version, cb) {
+var _createProject = function(manifest, userId, cb) {
 	console.log(typeof userId, userId);
 	var aProject = new Project({
-		name: projectName,
+		name: manifest.name,
 		_user: userId
 	});
+	var version = manifest.version;
 
 	aProject.save(function(err, newProject) {
 		if (err) {
 			return cb(err);
 		}
 		if (!version) {
-			version = aProject._id + '.' + new Date().getTime();
+			version = aProject._id + '.' + Date.now();
 		}
 		var aVersion = new Version({
 			version: version,
+			manifest: manifest,
 			_project: aProject._id
 		});
 		aVersion.save(function(err, newVersion) {
 			if (err) {
 				return cb(err);
 			}
-			cb(null, newProject, newVersion);
+			aProject._version = aVersion._id;
+			aProject.save(function() {
+				cb(null, newProject, newVersion);
+			});
 		});
 	});
 }

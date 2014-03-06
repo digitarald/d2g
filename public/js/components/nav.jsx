@@ -15,17 +15,8 @@ var Component = React.createClass({
 
 	getDefaultProps: function() {
 		return {
-			projects: [
-				{
-					key: 1,
-					name: 'Shotclock'
-				},
-				{
-					key: 2,
-					name: 'Zombie Clicker'
-				}
-			],
-			project: 1
+			projects: [],
+			project: -1
 		};
 	},
 
@@ -40,15 +31,17 @@ var Component = React.createClass({
 			if (this.props.project == project.key) {
 				currentProject = project.name;
 			}
+			var url = '#/project/' + project.key;
 			return (
-				<li><a href='#/project/{project.key}' onClick={this.handleDropdownClick}>{project.name}</a></li>
+				<li><a href={url} onClick={this.handleDropdownClick}>{project.name}</a></li>
 			);
 		}, this);
 		if (projects.length) {
 			projects.push(<li className='divider'></li>);
-			projects.push(<li><a href='#/project' onClick={this.handleDropdownClick}>New Project</a></li>);
-		} else {
-			currentProject = 'No Project';
+			projects.push(<li><a href='#/' onClick={this.handleDropdownClick}>New Project</a></li>);
+		}
+		if (!currentProject) {
+			currentProject = 'Select a Project';
 		}
 
 		var dropdownCls = 'dropdown' + (this.state.projectsOpen ? ' open' : '');
