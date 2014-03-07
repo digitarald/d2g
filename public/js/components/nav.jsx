@@ -20,9 +20,10 @@ var Component = React.createClass({
 		};
 	},
 
-	handleDropdownClick: function() {
-		console.log('handleDropdownClick', this.state.projectsOpen);
-		this.setState({projectsOpen: !this.state.projectsOpen});
+	handleDropdownClick: function(key) {
+		var set = {};
+		set[key] = !this.state[key];
+		this.setState(set);
 	},
 
 	render: function() {
@@ -33,18 +34,15 @@ var Component = React.createClass({
 			}
 			var url = '#/project/' + project.key;
 			return (
-				<li><a href={url} onClick={this.handleDropdownClick}>{project.name}</a></li>
+				<li><a href={url} onClick={this.handleDropdownClick.bind(this, 'projectsOpen')}>{project.name}</a></li>
 			);
 		}, this);
-		if (projects.length) {
-			projects.push(<li className='divider'></li>);
-			projects.push(<li><a href='#/' onClick={this.handleDropdownClick}>New Project</a></li>);
-		}
 		if (!currentProject) {
 			currentProject = 'Select a Project';
 		}
 
-		var dropdownCls = 'dropdown' + (this.state.projectsOpen ? ' open' : '');
+		var dropdownClsProject = 'dropdown' + (this.state.projectsOpen ? ' open' : '');
+		var dropdownClsUser = 'dropdown' + (this.state.userOpen ? ' open' : '');
 
 		return (
 			<div className='navbar navbar-default navbar-fixed-top'>
@@ -54,14 +52,15 @@ var Component = React.createClass({
 					</div>
 					<div className='collapse navbar-collapse'>
 						<ul className='nav navbar-nav'>
-							<li className={dropdownCls}>
-								<a className='	dropdown-toggle' onClick={this.handleDropdownClick}>{currentProject} <span className='caret'></span></a>
+							<li><a href='#/'>New Project</a></li>
+							<li className={dropdownClsProject}>
+								<a className='dropdown-toggle' onClick={this.handleDropdownClick.bind(this, 'projectsOpen')}>{currentProject} <span className='caret'></span></a>
 								<ul className='dropdown-menu open' ref='projects'>{projects}</ul>
 							</li>
 						</ul>
 						<ul className='nav navbar-nav navbar-right'>
-							<li className='dropdown'>
-								<a href='#' data-toggle='dropdown' className='dropdown-toggle'>You <i className='caret'></i></a>
+							<li className={dropdownClsUser}>
+								<a href='#' data-toggle='dropdown' className='dropdown-toggle' onClick={this.handleDropdownClick.bind(this, 'userOpen')}>You <i className='caret'></i></a>
 								<ul className='dropdown-menu'>
 									<li><a href='/account'>My Account</a></li>
 									<li className='divider'></li>

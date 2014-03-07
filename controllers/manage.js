@@ -1,7 +1,7 @@
 'use strict';
 
 var passport = require('passport');
-var _ = require('underscore');
+var _ = require('lodash');
 
 var processor = require('../lib/app_processor');
 var Project = require('../models/project');
@@ -23,11 +23,7 @@ exports.getProjects = function(req, res) {
 		.populate('_version')
 		.exec(function(err, projects) {
 			res.send(projects.map(function(project) {
-				// TODO: Remove this dirty migration hack
-				if (!project._version) {
-					project.getLatestVersion();
-				}
-				return project.toObject();
+				return project.toCleanObject();
 			}));
 		});
 };
@@ -48,6 +44,8 @@ exports.uploadApp = function(req, res) {
 			console.error(err);
 			return res.send(404, 'Unable to read app zip');
 		}
-		res.send(project);
+		project.populate('_version', function() {
+			res.send(project.toCleanObject());
+		})
 	});
 }
