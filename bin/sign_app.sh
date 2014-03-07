@@ -25,4 +25,6 @@ out_signed_zip=$3
 # database location must match with generate_cert.sh
 db=$configCertsDir/trusted
 
-python sign_b2g_app.py -d $db -f $passwordfile -k ee1 -i $unsigned_zip -o $out_signed_zip -S test_app_identifier -V 1
+# TODO: need full path to python script?
+# TODO: need DYLIB path?
+DYLD_LIBRARY_PATH=/usr/local/Cellar/nss/3.14.1/lib/ python `dirname $0`/sign_b2g_app.py -d $db -f $passwordfile -k ee1 -i $unsigned_zip -o $out_signed_zip -S test_app_identifier -V 1
