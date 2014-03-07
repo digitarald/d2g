@@ -1,4 +1,3 @@
-
 require('../css/styles.less');
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -25,11 +24,14 @@ document.addEventListener('DOMContentLoaded', function(){
 	var install = document.querySelector('button[data-package-manifest-url]');
 	if (install) {
 		if (!navigator.mozApps) {
-			return alert('navigator.mozApps is required');
+			document.getElementById('needs-mozapps').classList.remove('hidden');
+			return;
 		}
 		if (!navigator.mozApps.installPackage) {
-			return alert('mozApps.installPackage is required');
+			document.getElementById('needs-mozapps-install').classList.remove('hidden');
+			return;
 		}
+		install.disabled = false;
 		install.addEventListener('click', function f(e) {
 			var url = install.getAttribute('data-package-manifest-url');
 			url = location.origin + url;

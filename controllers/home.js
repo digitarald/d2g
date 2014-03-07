@@ -52,6 +52,7 @@ exports.getInstall = function(req, res) {
 				createdAgo: moment(project._version.created).fromNow(),
 				size: prettyBytes(size),
 				manifestUrl: '/install/' + project._id + '/manifest',
+				packageUrl: '/install/' + project._id + '/package',
 				iconUrl: '/install/' + project._id + '/icon',
 				version: project._version.version
 			});

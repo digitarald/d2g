@@ -10,9 +10,15 @@ block content
 						h1 #{title}
 							small
 								|  #{version}
+			.alert.alert-danger.hidden#needs-mozapps
+				:markdown
+					**Your browser doesn't support `navigator.mozApps`!** Get out your Firefox OS phone and try it there.
+			.alert.alert-danger.hidden#needs-mozapps-install
+				:markdown
+					**Your browser doesn't support `navigator.mozApps.installPackage`!** Get out your Firefox OS phone and try it there.
+
 			.row.text-center
 				.col-xs-12.col-md-6.col-md-offset-3
-					button.col-xs-12.btn.btn-lg.btn-primary(data-package-manifest-url=manifestUrl) Install
-					div.small.text-muted Updated #{createdAgo} - #{size}
-
-
+					button.btn.btn-lg.btn-primary(data-package-manifest-url=manifestUrl, disabled) Install
+					p.small.text-muted Updated #{createdAgo} -
+						a(href=packageUrl)  #{size}

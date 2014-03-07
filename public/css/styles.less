@@ -36,11 +36,20 @@ body {
 .project {
 	img {
 		float: left;
-		height: 40px;
-		margin: 10px 10px 10px 0;
+    height: 30px;
+		margin: 25px @padding-base-horizontal 10px 0;
+
+	  @media (min-width: @screen-md-min) {
+	  	margin-top: 10px;
+	  	margin-right: @padding-large-horizontal;
+			height: 60px;
+	  }
 	}
-	h1 {
-		margin-top: 10px;
+	button {
+		width: 100%;
+		 ~ p {
+			margin-top: 10px;
+		}
 	}
 }
 
