@@ -1,3 +1,5 @@
+'use strict';
+
 var mongoose = require('mongoose');
 
 var versionSchema = new mongoose.Schema({
@@ -13,5 +15,17 @@ var versionSchema = new mongoose.Schema({
 		default: Date.now
 	},
 });
+
+
+versionSchema.methods.toCleanObject = function() {
+	return {
+		key: this.id,
+		version: this.version,
+		manifest: JSON.parse(this.manifest),
+		created: this.created.getTime()
+	};
+};
+
+
 
 module.exports = mongoose.model('Version', versionSchema);

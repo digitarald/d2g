@@ -1,3 +1,5 @@
+'use strict';
+
 var mongoose = require('mongoose');
 var Version = require('./version');
 
@@ -22,15 +24,28 @@ var projectSchema = new mongoose.Schema({
 	}
 });
 
-projectSchema.methods.getLatestVersion = function(done) {
-	Version
-		.findOne({
-			_project: this._id
-		})
-		.exec(function(err, version) {
-			this._version = version._id;
-			this.save(done);
-		}.bind(this));
+projectSchema.virtual('iconUrl').get(function() {
+	return '/install/' + this._id + '/icon';
+});
+
+projectSchema.virtual('manifestUrl').get(function() {
+	return '/install/' + this._id + '/manifest';
+});
+
+projectSchema.virtual('packageUrl').get(function() {
+	return '/install/' + this._id + '/package';
+});
+
+projectSchema.methods.toCleanObject = function() {
+	return {
+		key: this.id,
+		name: this.name,
+		created: this.created.getTime(),
+		iconUrl: this.iconUrl,
+		manifestUrl: this.manifestUrl,
+		packageUrl: this.packageUrl,
+		version: this._version.toCleanObject()
+	};
 };
 
 module.exports = mongoose.model('Project', projectSchema);

@@ -11,7 +11,10 @@ var routes = {
 	},
 	'/project/:id': {
 		name: 'project',
-		component: require('./components/project.jsx')
+		component: require('./components/project.jsx'),
+		on: function(id) {
+			this.setState({routeParams: {id: id}});
+		}
 	}
 };
 
@@ -21,23 +24,31 @@ var Main = React.createClass({
 	getInitialState: function() {
 		return {
 			route: null,
-			routeParams: [],
-			projects: [],
-			project: -1
+			routeParams: {},
+			projects: []
 		};
 	},
 
 	handleRoute: function(route) {
-		var routeParams = [].slice.call(arguments, 1);
 		this.setState({
-			routeParams: routeParams,
 			route: route
 		});
+	},
+
+	handleUpdateProject: function(project, add) {
+		var projects = this.state.projects.slice();
+		if (add) {
+			projects.push(project);
+			this.setState({projects: projects});
+		}
 	},
 
 	componentWillMount: function() {
 		var routes = this.props.routes;
 		for (var route in routes) {
+			if (routes[route].on) {
+				this.props.router.on(route, routes[route].on.bind(this));
+			}
 			var setter = this.handleRoute.bind(this, route);
 			this.props.router.on(route, setter);
 		}
@@ -56,10 +67,7 @@ var Main = React.createClass({
 
 	handleLoad: function(event) {
 		this.setState({
-			projects: event.target.response.map(function(project) {
-				project.key = project._id;
-				return project;
-			})
+			projects: event.target.response
 		});
 	},
 
@@ -72,12 +80,11 @@ var Main = React.createClass({
 			};
 		}
 		var component = route.component;
-		console.log(this.state.projects);
 		return (
 			<div>
 				<Nav projects={this.state.projects} />
 				<div className='container'>
-					<component projects={this.state.projects} params={this.state.routeParams} />
+					<component projects={this.state.projects} params={this.state.routeParams} onUpdateProject={this.handleUpdateProject} />
 				</div>
 			</div>
 		);
