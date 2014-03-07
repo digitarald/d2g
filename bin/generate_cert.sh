@@ -5,7 +5,7 @@
 
 # bwalker says:
 # I got this to run to completion on my Mac using
-# TMP=/tmp DYLD_LIBRARY_PATH=/usr/local/Cellar/nss/3.14.1/lib/ ./generate.sh
+# DYLD_LIBRARY_PATH=/usr/local/Cellar/nss/3.14.1/lib/ ./generate.sh
 
 set -x
 
@@ -14,6 +14,7 @@ set -x
 # initalize config/certs dir from first argument
 configCertsDir=$1
 echo "configCertsDir is $configCertsDir"
+mkdir -p $configCertsDir
 
 # second argument the location of the DER file
 publicKeyDER=$2

@@ -2,22 +2,11 @@
 
 var path = require('path');
 
+// NB: current directory is config
+
 module.exports = {
+  binPath: path.join(__dirname, '../bin'),
   derFilePath: path.join(__dirname, 'config-for-phone.der'),
-  keystorePath: path.join(__dirname, 'my-d2g-keystore.ks'),
   audience: 'http://localhost:3000',
-
-  keygenParams: {
-    alias : 'Acme',
-    commonName: 'Acme Co TEST',
-    organizationUnit: 'Apps',
-    organization: 'Acme Org',
-    city: 'Acmetown',
-    state: 'CA',
-    countryCode: 'US',
-    store_password: 'keystorepassword',
-    alias_password: 'aliaspassword'
-  }
+  configCertsDir: path.join(__dirname, 'certinfo')
 };
-
-module.exports.keygenParams.keystore = module.exports.keystorePath;
