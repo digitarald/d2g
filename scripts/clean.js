@@ -1,3 +1,4 @@
+var async = require('async');
 var mongoose = require('mongoose'),
     fs = require('fs');
 
@@ -18,7 +19,25 @@ var Version = require('../models/version');
 
 console.log('Nuking everything... Good luck with that');
 
-mongoose.connection.db.dropDatabase();
-mongoose.disconnect();
+function removeCb(err) {
+        if (err) console.error(err);
+}
+
+async.series([
+	function(done) {
+		async.parallel([
+			function(cb) { Project.remove(cb) },
+			function(cb) { SignedPackage.remove(cb) },
+			function(cb) { User.remove(cb) },
+			function(cb) { Version.remove(cb) }
+		], function(err) {
+                        if (err) console.error(err);
+                        done(err);
+                });
+	},
+	function(err) {
+		mongoose.disconnect();
+	}
+]);
 
 rm(config.derFilePath);
