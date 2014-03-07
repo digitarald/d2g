@@ -40,5 +40,4 @@ async.series([
 	}
 ]);
 
-rm(config.keystorePath);
 rm(config.derFilePath);
