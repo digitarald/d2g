@@ -163,14 +163,16 @@ exports.getIcon = function(req, res) {
 
 exports.getPhoneCertInstructions = function(req, res) {
 	// TODO provide some instructions on how to install the cert
+	res.send(404, 'TODO');
 };
 
 exports.getPhoneCert = function(req, res) {
-	res.download(config.derFilePath, 'phone - cert.der ');
+	res.download(config.derFilePath, 'phone-cert.der');
 };
 
 exports.getPhoneCertTools = function(req, res) {
 	// TODO provide tools to install the cert.
+	res.send(404, 'TODO');
 };
 
 
