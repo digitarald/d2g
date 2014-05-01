@@ -1,12 +1,13 @@
 /** @jsx React.DOM */
 
 var React = require('react');
+var cx = require('react/lib/cx.js');
 
-var Component = React.createClass({
+var ProjectNew = React.createClass({
 
 	getInitialState: function() {
 		return {
-			uploading: 0,
+			uploading: false,
 			project: null,
 			progress: 0,
 			dragOver: false
@@ -19,13 +20,20 @@ var Component = React.createClass({
 
 		var data = new FormData();
 		data.append('zip', file);
-		var xhr = this.xhr = new XMLHttpRequest();
-		xhr.open('POST', '/manage/project', true);
-		xhr.upload.addEventListener('progress', this.handleProgress);
-		xhr.addEventListener('load', this.handleComplete);
-		xhr.send(data);
+		var req = new XMLHttpRequest();
+		req.open('POST', '/manage/project', true);
+		req.upload.addEventListener('progress', this.handleProgress);
+		req.addEventListener('load', this.handleComplete);
+		req.addEventListener('error', this.handleError);
+		req.send(data);
 
-		this.setState({uploading: 1, progress: 0, dragOver: false});
+		this.setState({
+			uploading: true,
+			progress: 0,
+			dragOver: false,
+			file: file.name,
+			error: null
+		});
 	},
 
 	handleProgress: function(event) {
@@ -48,49 +56,52 @@ var Component = React.createClass({
 		}
 	},
 
+	handleError: function() {
+		this.setState({
+			uploading: false,
+			error: req.responseText
+		});
+	},
+
 	handleComplete: function(event) {
-		var project = JSON.parse(this.xhr.responseText);
-		this.xhr = null;
-		this.setState({uploading: 0});
+		var req = event.currentTarget;
+		var project = JSON.parse(req.responseText);
+		this.setState({uploading: false});
 		this.props.onUpdateProject(project, true);
+		// location.hash = '/project/' + project.project;
 	},
 
 	render: function() {
-		switch (this.state.uploading) {
-			case 0:
-				var upload = <input type='file' ref='package' onChange={this.handleUpload} />;
-				break;
-			case 1:
-				var upload = <span>Uploading {this.state.progress}%</span>;
-				break;
-			case 2:
-				var upload = <span>Uploaded <em>{this.state.project}</em></span>;
-				break;
+		if (this.state.uploading) {
+			var upload = (
+				<div>
+					<h4>{this.state.progress}%</h4>
+					<h5>Uploading <em>{this.state.file}</em></h5>
+				</div>
+			);
+		} else {
+			var upload = (
+				<input type='file' ref='upload' onChange={this.handleUpload} />
+			);
 		}
 
-		var cls = '';
-		if (this.state.dragOver) {
-			cls = 'is-dragging';
-		}
+		var cls = cx({
+			row: true,
+			'is-dragging': this.state.dragging
+		});
 
 		return (
 			<div className={cls}>
-				<div className='row'>
+				<div className='col-md-6 col-md-offset-3'>
 					<div className='page-header'>
-						<h1><i className='fa fa-rocket'></i> Add a new Project</h1>
+						<h1><i className='fa fa-rocket'></i> Upload your Project</h1>
 					</div>
-				</div>
-				<div className='row'>
-					<div className='col-md-6' onDragEnter={this.handleDragEnter} onDragLeave={this.handleDragLeave} onDrop={this.handleUpload}>
-						<h3><i className='fa fa-upload'></i> Upload Package</h3>
-						<p className='lead'>Quick-start a new project with an app package. You need to have a zip file containing your app.</p>
-						<h4>Upload File</h4>
+					<div onDragEnter={this.handleDragEnter} onDragLeave={this.handleDragLeave} onDrop={this.handleUpload}>
+						<p className='lead'>
+							Quick-start a new project with an app package.
+							You need to have a zip file containing your app.
+						</p>
 						<p className='text-center'>{upload}</p>
-					</div>
-					<div className='col-md-6'>
-						<h3><i className='fa fa-dropbox'></i> Link Github Repo</h3>
-						<p className='lead'>Automate build updates with commit hooks.</p>
-						<p>You need to link your Github account before continuing.</p><a href='/auth/github' className='btn btn-default'>Link your GitHub account</a>
 					</div>
 				</div>
 			</div>
@@ -99,4 +110,4 @@ var Component = React.createClass({
 
 });
 
-module.exports = Component;
+module.exports = ProjectNew;
