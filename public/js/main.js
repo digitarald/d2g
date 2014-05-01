@@ -37,10 +37,10 @@ document.addEventListener('DOMContentLoaded', function(){
 			url = location.origin + url;
 			var request = navigator.mozApps.installPackage(url);
 			request.onsuccess = function() {
-				if (!this.result || !this.result.manifest) {
-					return alert('Install failed without error');
-				}
-				alert(this.result.manifest.name + ' installed');
+				// if (!this.result || !this.result.manifest) {
+				// 	return alert('Install failed without error');
+				// }
+				alert('Installed!');
 			};
 			request.onerror = function() {
 				alert(this.error.name);
