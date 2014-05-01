@@ -7,7 +7,10 @@ var router = new Router();
 var routes = {
 	'/': {
 		name: 'project-new',
-		component: require('./components/project-new.jsx')
+		component: require('./components/project-new.jsx'),
+		on: function() {
+			this.setState({routeParams: {}});
+		}
 	},
 	'/project/:id': {
 		name: 'project',
@@ -38,6 +41,7 @@ var Main = React.createClass({
 	handleUpdateProject: function(project, add) {
 		var projects = this.state.projects.slice();
 		if (add) {
+			console.log(project);
 			projects.push(project);
 			this.setState({projects: projects});
 		}
@@ -82,7 +86,7 @@ var Main = React.createClass({
 		var component = route.component;
 		return (
 			<div>
-				<Nav projects={this.state.projects} />
+				<Nav projects={this.state.projects} route={this.state.route} params={this.state.routeParams} />
 				<div className='container'>
 					<component projects={this.state.projects} params={this.state.routeParams} onUpdateProject={this.handleUpdateProject} />
 				</div>
